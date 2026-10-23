@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><title>ConsentScan – DSGVO- & Cookie-Check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{box-sizing:border-box;--bg:#f6f7fb;--card:#fff;--tx:#14182b;--mu:#666d85;--bd:#e3e6f0;--ac:#4f46e5;--ok:#16a34a;--wa:#d97706;--er:#dc2626}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1220;--card:#181c30;--tx:#eef0fa;--mu:#9aa1bd;--bd:#2a2f4a;--ac:#818cf8;--ok:#4ade80;--wa:#fbbf24;--er:#f87171}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+.w{max-width:880px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:24px;margin:0}h2{font-size:17px;margin:0 0 10px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:20px}.logo span{color:var(--ac)}
+.tabs{display:flex;gap:6px}.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 14px;border-radius:8px;cursor:pointer;font:inherit}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:14px}
+textarea,input{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:10px;font:13px ui-monospace,monospace}
+textarea{height:140px;resize:vertical}input{font-family:inherit;font-size:15px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:10px 18px;font:600 15px inherit;cursor:pointer}
+.btn.s{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.mu{color:var(--mu);font-size:13px}
+.score{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.ring{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:800;flex:none}
+.ring i{width:74px;height:74px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-style:normal}
+.f{border-left:4px solid;border-radius:8px;background:var(--bg);padding:12px 14px;margin-top:10px}
+.f.er{border-color:var(--er)}.f.wa{border-color:var(--wa)}.f.ok{border-color:var(--ok)}
+.f b{display:block}.tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.er .tag{color:var(--er)}.wa .tag{color:var(--wa)}.ok .tag{color:var(--ok)}
+pre{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px;overflow-x:auto;font-size:12px;margin:8px 0 0;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--bd)}
+.pill{padding:2px 10px;border-radius:99px;font-weight:700;font-size:13px;color:#fff}
+.pr{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.pr .card{margin:0}.pr h3{margin:0}.pr .p{font-size:26px;font-weight:800;margin:6px 0}
+.hide{display:none}
+</style></head><body><div class="w">
+<div class="top"><div class="logo">Consent<span>Scan</span></div>
+<div class="tabs"><button id="t1" class="on" onclick="tab(1)">Scan</button><button id="t2" onclick="tab(2)">Kunden</button><button id="t3" onclick="tab(3)">Preise</button></div></div>
+
+<div id="v1">
+<div class="card"><h1>DSGVO- & Cookie-Check</h1>
+<p class="mu">Gib die Adresse einer Website ein und tippe auf Live-Scan.</p>
+<div class="row" style="margin:0 0 10px"><input id="url" placeholder="https://muster-friseur.de" style="flex:1;min-width:200px"><button class="btn" id="lb" onclick="live()">Live-Scan</button></div>
+<p class="mu" style="margin:0 0 10px">Oder Quelltext manuell einfügen:</p>
+<input id="name" placeholder="Kunde / Domain, z. B. muster-friseur.de" style="margin-bottom:8px">
+<textarea id="src" placeholder="<html> … Quelltext hier einfügen …"></textarea>
+<div class="row"><button class="btn" onclick="scan()">Prüfen</button><button class="btn s" onclick="demo()">Beispielseite laden</button></div></div>
+<div id="res"></div></div>
+
+<div id="v2" class="hide"><div class="card"><h2>Kundenseiten</h2>
+<table><thead><tr><th>Domain</th><th>Score</th><th>Datum</th></tr></thead><tbody id="cl"></tbody></table>
+<p class="mu" id="emp">Noch keine Scans gespeichert.</p></div></div>
+
+<div id="v3" class="hide"><div class="pr">
+<div class="card"><h3>Starter</h3><div class="p">19 €<span class="mu">/Monat</span></div><div class="mu">3 Kundenseiten, PDF-Bericht, monatlicher Re-Scan</div><a class="btn" style="display:inline-block;margin-top:10px;text-decoration:none" href="#" data-p="0">Buchen</a></div>
+<div class="card" style="border-color:var(--ac)"><h3>Agentur</h3><div class="p">49 €<span class="mu">/Monat</span></div><div class="mu">15 Kundenseiten, White-Label-Bericht, Wochen-Scan, Alerts</div><a class="btn" style="display:inline-block;margin-top:10px;text-decoration:none" href="#" data-p="1">Buchen</a></div>
+<div class="card"><h3>Pro</h3><div class="p">99 €<span class="mu">/Monat</span></div><div class="mu">50 Kundenseiten, Team-Zugänge, API, tägliche Scans</div><a class="btn" style="display:inline-block;margin-top:10px;text-decoration:none" href="#" data-p="2">Buchen</a></div></div>
+<p class="mu">Zahlungslinks: Bei PAY_LINKS in dieser Datei die drei Stripe-Links eintragen.</p></div>
+
+<p class="mu" style="margin-top:30px">Automatischer Check, keine Rechtsberatung. Ergebnisse ersetzen keine anwaltliche Prüfung.</p>
+</div>
+<script>
+const PAY_LINKS=['','',''];
+document.querySelectorAll('[data-p]').forEach(a=>{const l=PAY_LINKS[a.dataset.p];if(l)a.href=l;else a.onclick=e=>{e.preventDefault();alert('Stripe-Link noch nicht eingetragen')}});
+const T=[
+{n:'Google Analytics',re:/googletagmanager\.com|google-analytics\.com|gtag\(/i,s:'er',fix:'Analytics erst nach Einwilligung laden (Consent Mode v2) oder datenschutzfreundliche Alternative wie Matomo oder Plausible nutzen.'},
+{n:'Meta/Facebook Pixel',re:/connect\.facebook\.net|fbq\(/i,s:'er',fix:'Pixel nur nach aktiver Einwilligung nachladen und in der Datenschutzerklärung nennen.'},
+{n:'Google Fonts (extern)',re:/fonts\.(googleapis|gstatic)\.com/i,s:'er',fix:'Schriften lokal hosten (Dateien herunterladen und per @font-face einbinden). Externe Einbindung übermittelt die IP an Google.'},
+{n:'Google Maps',re:/maps\.google\.|google\.com\/maps/i,s:'wa',fix:'Karte per Zwei-Klick-Lösung laden oder erst nach Einwilligung einbinden.'},
+{n:'YouTube-Einbettung',re:/youtube\.com\/embed|youtu\.be/i,s:'wa',fix:'youtube-nocookie.com nutzen und Video erst nach Klick laden.'},
+{n:'TikTok/LinkedIn-Pixel',re:/analytics\.tiktok\.com|snap\.licdn\.com/i,s:'er',fix:'Nur nach Einwilligung laden.'},
+{n:'Hotjar / Clarity',re:/hotjar\.com|clarity\.ms/i,s:'er',fix:'Session-Recording nur mit ausdrücklicher Einwilligung.'}];
+const CMP=/cookiebot|usercentrics|borlabs|consentmanager|onetrust|cookieconsent|complianz|cookie-banner|cookie-consent|didomi|klaro/i;
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function analyze(h){const f=[];let sc=100;const add=(s,t,d,x)=>{f.push({s,t,d,x});sc-=s=='er'?15:s=='wa'?7:0};
+const ts=T.filter(t=>t.re.test(h));
+if(!CMP.test(h))add('er','Kein Cookie-Banner / Consent-Tool erkannt','Es wurde keine bekannte Consent-Lösung gefunden. Nicht notwendige Cookies und Tracker benötigen eine vorherige Einwilligung.','Consent-Tool einbinden (z. B. Borlabs, Usercentrics, Complianz) mit gleichwertigen Buttons „Akzeptieren“ und „Ablehnen“.');
+else f.push({s:'ok',t:'Consent-Tool erkannt',d:'Ein Cookie-Banner scheint eingebunden.',x:''});
+ts.forEach(t=>add(t.s,t.n+' gefunden','Wird im Quelltext geladen. Prüfe, ob das Skript vor der Einwilligung läuft.',t.fix));
+if(!/impressum/i.test(h))add('er','Impressum-Link fehlt','Kein Hinweis auf ein Impressum gefunden (§ 5 DDG).','Impressum im Footer von jeder Seite aus mit einem Klick erreichbar verlinken.');else f.push({s:'ok',t:'Impressum verlinkt',d:'',x:''});
+if(!/datenschutz|privacy/i.test(h))add('er','Datenschutzerklärung fehlt','Kein Link zur Datenschutzerklärung erkannt (Art. 13 DSGVO).','Datenschutzerklärung im Footer verlinken und alle genutzten Dienste darin aufführen.');else f.push({s:'ok',t:'Datenschutzerklärung verlinkt',d:'',x:''});
+if(/<form/i.test(h)&&!/datenschutz|privacy/i.test((h.match(/<form[\s\S]*?<\/form>/i)||[''])[0]))add('wa','Formular ohne Datenschutzhinweis','Im Formular wurde kein Verweis auf die Datenschutzerklärung gefunden.','Hinweis „Ich habe die Datenschutzerklärung gelesen“ direkt am Absende-Button ergänzen.');
+if(/http:\/\/(?!localhost)/i.test(h))add('wa','Unsichere http://-Ressourcen','Es werden Inhalte über unverschlüsseltes HTTP geladen.','Alle Ressourcen auf https:// umstellen.');
+return{f,sc:Math.max(5,sc)}}
+const col=s=>s>=80?'var(--ok)':s>=50?'var(--wa)':'var(--er)';
+let cur=null,extra=[],mem=null;
+async function call(u,pw){return fetch('/api/scan',{method:'POST',headers:{'content-type':'application/json','x-pass':pw},body:JSON.stringify({url:u})})}
+async function live(){const u=document.getElementById('url').value.trim();if(!u)return;
+let pw='';try{pw=sessionStorage.getItem('pw')||''}catch(e){}
+const b=document.getElementById('lb');b.textContent='Prüfe…';b.disabled=true;
+try{let r=await call(u,pw);
+if(r.status==401){pw=prompt('Passwort:')||'';try{sessionStorage.setItem('pw',pw)}catch(e){}r=await call(u,pw)}
+const d=await r.json();if(d.error){alert(d.error);return}
+document.getElementById('src').value=d.html;extra=d.extras||[];
+if(!document.getElementById('name').value)document.getElementById('name').value=new URL(d.finalUrl).hostname;scan()}
+catch(e){alert('Server nicht erreichbar.')}finally{b.textContent='Live-Scan';b.disabled=false}}
+function scan(){const h=document.getElementById('src').value;if(h.trim().length<30){alert('Bitte Adresse eingeben oder Quelltext einfügen.');return}
+const n=document.getElementById('name').value.trim()||'Unbenannte Seite';const r=analyze(h);
+extra.forEach(x=>{r.f.push(x);r.sc=Math.max(5,r.sc-(x.s=='er'?15:x.s=='wa'?7:0))});extra=[];
+cur={n,sc:r.sc,d:new Date().toLocaleDateString('de-DE'),f:r.f};
+const c=r.f.filter(x=>x.s=='er').length,w=r.f.filter(x=>x.s=='wa').length;
+let o='<div class="card"><div class="score"><div class="ring" style="background:conic-gradient('+col(r.sc)+' '+r.sc*3.6+'deg,var(--bd) 0)"><i>'+r.sc+'</i></div><div><h2 style="margin:0">'+esc(n)+'</h2><div class="mu">'+c+' kritisch · '+w+' Warnungen · '+cur.d+'</div></div></div>'
++'<div class="row"><button class="btn" onclick="save()">Speichern</button><button class="btn s" onclick="window.print()">Bericht drucken / PDF</button></div></div><div class="card"><h2>Befunde & Lösungen</h2>';
+r.f.sort((a,b)=>'er wa ok'.indexOf(a.s)-'er wa ok'.indexOf(b.s)).forEach(x=>{o+='<div class="f '+x.s+'"><span class="tag">'+(x.s=='er'?'Kritisch':x.s=='wa'?'Warnung':'In Ordnung')+'</span><b>'+esc(x.t)+'</b>'+(x.d?'<span class="mu">'+esc(x.d)+'</span>':'')+(x.x?'<pre>Lösung: '+esc(x.x)+'</pre>':'')+'</div>'});
+document.getElementById('res').innerHTML=o+'</div>'}
+function demo(){document.getElementById('name').value='muster-friseur.de';document.getElementById('src').value='<html><head><link href="https://fonts.googleapis.com/css2?family=Inter" rel="stylesheet"><script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXX"></script><script>fbq("init","123")</script></head><body><h1>Friseur Muster</h1><iframe src="https://www.youtube.com/embed/abc"></iframe><form><input name="mail"><button>Senden</button></form><footer><a href="/impressum">Impressum</a></footer></body></html>';scan()}
+function load(){try{return JSON.parse(localStorage.getItem('cs')||'[]')}catch(e){return[]}}
+function save(){if(!cur)return;const l=load();l.unshift({n:cur.n,sc:cur.sc,d:cur.d});try{localStorage.setItem('cs',JSON.stringify(l.slice(0,50)))}catch(e){}mem=l;tab(2)}
+function tab(i){[1,2,3].forEach(k=>{document.getElementById('v'+k).classList.toggle('hide',k!=i);document.getElementById('t'+k).classList.toggle('on',k==i)});
+if(i==2){const l=mem||load();document.getElementById('emp').style.display=l.length?'none':'block';document.getElementById('cl').innerHTML=l.map(x=>'<tr><td>'+esc(x.n)+'</td><td><span class="pill" style="background:'+col(x.sc)+'">'+x.sc+'</span></td><td>'+x.d+'</td></tr>').join('')}}
+</script></body></html>
